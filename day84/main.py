@@ -48,9 +48,9 @@ while want_to_play == "y":
     game_over = False
 
     print("\nWelcome to Tic Tac Toe!")
-    display_positions()
 
     while game_over == False:
+        display_positions()
         display_board(board)
         move = input(f"Player {current_player}, choose your move (1-9): ")
 
