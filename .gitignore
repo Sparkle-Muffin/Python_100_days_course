@@ -1,0 +1,5 @@
+.env
+/test/
+.ipynb_checkpoints/
+__pycache__/
+firefox_profile/

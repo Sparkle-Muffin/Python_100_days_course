@@ -1,0 +1,58 @@
+# Install with the newest Python version:
+micromamba create --name python_100_days python
+# Install with the newest Python version=3.12:
+micromamba create --name python_100_days python=3.12
+micromamba env remove --name python_100_days
+
+micromamba activate python_100_days
+micromamba deactivate
+
+micromamba env list
+micromamba list
+
+# Remove package:
+micromamba remove notebook
+
+micromamba install prettytable
+pip install colorgram.py
+micromamba install pandas
+micromamba install pyperclip
+micromamba install requests
+micromamba install twilio
+micromamba install bs4
+micromamba install requests-html
+pip install lxml_html_clean
+micromamba install selenium
+micromamba install flask
+micromamba install python-dotenv
+micromamba install werkzeug
+micromamba install wtforms
+micromamba install flask-wtf
+micromamba install email_validator
+micromamba install bootstrap-flask
+micromamba install flask-sqlalchemy
+micromamba install sqlalchemy
+pip install flask-ckeditor
+micromamba install flask-login
+micromamba install notebook
+micromamba install matplotlib
+micromamba install plotly
+micromamba install scipy
+micromamba install pooch
+micromamba install seaborn
+micromamba install scikit-learn
+
+day71:
+python -m venv myfirstproject
+source myfirstproject/bin/activate
+deactivate
+pip install -r /path/to/requirements.txt
+
+python -m venv day71/venv
+source day71/venv/bin/activate
+deactivate
+pip install -r day71/requirements.txt
+
+
+# Run Jupyter Notebook:
+python -m jupyterlab

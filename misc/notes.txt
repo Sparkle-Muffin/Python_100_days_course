@@ -1,0 +1,38 @@
+Thonny - a Python IDE meant for learning programming:
+https://thonny.org/
+
+https://pythontutor.com/
+
+Join our mailing list
+https://londonappbrewery.com/sendy/subscription?f=m7Xj2bDOCQnlJ27yezLEAtJi1mhUIxOaJcJGZYMLLX6wx5MZd0b2FunBI8dOomNt
+
+draw.io
+https://app.diagrams.net/
+
+https://waitbutwhy.com/
+
+https://opentdb.com/
+
+https://www.tcl-lang.org/man/tcl9.0/TkCmd/index.html
+https://tkdocs.com/tutorial/canvas.html
+
+https://colorhunt.co/
+
+https://jsonpathfinder.com/
+
+meld
+https://www.diffchecker.com/
+
+https://www.dailyui.co/
+https://collectui.com/
+
+https://github.com/github/gitignore
+
+https://learngitbranching.js.org/
+
+to see git log:
+github -> insights -> network
+https://github.com/github/gitignore/network
+
+notebook:
+shift + tab
