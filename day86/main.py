@@ -356,6 +356,7 @@ class TypingSpeedTestApp:
             pady=5,
             state="disabled",
             bg="#f5f5f5",
+            font=("Helvetica", 14),
         )
         self.text_display.pack(fill="both", expand=False)
 
@@ -369,6 +370,7 @@ class TypingSpeedTestApp:
             wrap="word",
             padx=5,
             pady=5,
+            font=("Helvetica", 14),
         )
         self.input_text.pack(fill="both", expand=True)
 
