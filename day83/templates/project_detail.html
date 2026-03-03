@@ -1,0 +1,120 @@
+{% include "header.html" %}
+
+<section class="section-padding pt-5">
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 gy-4">
+      <div class="col-lg-8">
+        <article class="glass-panel project-detail">
+          <h1 class="display-6 fw-bold mb-2">
+            {{ project["title"] }}
+          </h1>
+          {% if project["subtitle"] %}
+            <p class="lead text-secondary-300 mb-3">
+              {{ project["subtitle"] }}
+            </p>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-4 small">
+            {% if project["main_tech"] %}
+              <span class="badge bg-gradient-primary text-uppercase">
+                {{ project["main_tech"] }}
+              </span>
+            {% endif %}
+            {% if project["created_at"] %}
+              <span class="text-secondary-400">
+                {{ project["created_at"][:10] }}
+              </span>
+            {% endif %}
+            {% if project["featured"] %}
+              <span class="pill pill-sm">
+                Featured project
+              </span>
+            {% endif %}
+          </div>
+
+          {% if project["full_description"] %}
+            <h2 class="h5 fw-semibold mb-2">Overview</h2>
+            <p class="text-secondary-200 mb-4">
+              {{ project["full_description"] }}
+            </p>
+          {% else %}
+            <h2 class="h5 fw-semibold mb-2">Overview</h2>
+            <p class="text-secondary-200 mb-4">
+              {{ project["short_summary"] }}
+            </p>
+          {% endif %}
+
+          {% if project["tech_stack"] %}
+            <h2 class="h6 text-uppercase text-secondary-200 mb-2">
+              Tech stack
+            </h2>
+            <div class="project-tech mb-4">
+              {% for tech in project["tech_stack"].split(",") %}
+                <span class="pill pill-sm">
+                  {{ tech.strip() }}
+                </span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if project["github_url"] or project["demo_url"] %}
+            <div class="d-flex flex-wrap gap-3 mt-2">
+              {% if project["github_url"] %}
+                <a
+                  href="{{ project['github_url'] }}"
+                  class="btn btn-outline-light btn-sm"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  View Code
+                </a>
+              {% endif %}
+              {% if project["demo_url"] %}
+                <a
+                  href="{{ project['demo_url'] }}"
+                  class="btn btn-primary btn-sm glow-button"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Live Demo
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </article>
+      </div>
+      <div class="col-lg-4">
+        <aside class="glass-panel h-100 small">
+          <h2 class="h6 text-uppercase text-secondary-200 mb-3">
+            Project meta
+          </h2>
+          <ul class="list-unstyled text-secondary-300 mb-4">
+            <li class="mb-2">
+              <span class="text-secondary-400">Database:</span>
+              <span class="ms-1">SQLite</span>
+            </li>
+            <li class="mb-2">
+              <span class="text-secondary-400">Backend:</span>
+              <span class="ms-1">Flask (Python)</span>
+            </li>
+            <li class="mb-2">
+              <span class="text-secondary-400">UI:</span>
+              <span class="ms-1">Bootstrap + custom CSS</span>
+            </li>
+          </ul>
+
+          <h2 class="h6 text-uppercase text-secondary-200 mb-2">
+            How this fits
+          </h2>
+          <p class="text-secondary-300 mb-0">
+            Use this space to explain the business value, the ML approach, and
+            any interesting engineering decisions behind this project.
+          </p>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include "footer.html" %}
+

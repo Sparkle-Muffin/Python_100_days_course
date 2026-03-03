@@ -1,0 +1,232 @@
+{% include "header.html" %}
+
+<!-- Hero Section -->
+<header class="hero-section">
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-copy">
+          <span class="badge bg-gradient-primary text-uppercase mb-3 hero-tagline">
+            Machine Learning • Deep Learning • MLOps
+          </span>
+          <h1 class="display-4 fw-bold mb-3">
+            Building intelligent systems
+            <span class="accent-gradient"> end‑to‑end. </span>
+          </h1>
+          <p class="lead text-secondary-300 mb-4">
+            I design, train, and deploy ML/AI solutions — from data pipelines and model
+            experimentation to production-grade APIs and dashboards.
+          </p>
+          <div class="d-flex flex-wrap gap-3 align-items-center">
+            <a
+              href="{{ url_for('projects') }}"
+              class="btn btn-lg btn-primary px-4 glow-button"
+            >
+              View Projects
+            </a>
+            <a
+              href="{{ url_for('contact') }}"
+              class="btn btn-lg btn-outline-light px-4"
+            >
+              Let’s Collaborate
+            </a>
+          </div>
+          <div class="hero-tech-stack mt-4">
+            <span class="text-uppercase text-secondary-400 small">Core Stack</span>
+            <div class="d-flex flex-wrap gap-2 mt-1">
+              <span class="pill">Python</span>
+              <span class="pill">Flask</span>
+              <span class="pill">PyTorch / TensorFlow</span>
+              <span class="pill">Pandas</span>
+              <span class="pill">SQL / SQLite</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 mt-5 mt-lg-0">
+        <div class="hero-card glass-panel">
+          <div class="hero-orbit"></div>
+          <div class="hero-orbit hero-orbit-2"></div>
+          <div class="hero-orbit hero-orbit-3"></div>
+          <div class="hero-avatar text-center mb-3">
+            <div class="avatar-circle">
+              <span class="avatar-initial">ML</span>
+            </div>
+          </div>
+          <h2 class="h4 fw-semibold mb-2 text-center">
+            ML/AI Developer
+          </h2>
+          <p class="small text-secondary-300 mb-3 text-center px-3">
+            Focused on model quality, reproducibility, and real-world impact.
+          </p>
+          <div class="row text-secondary-200 small g-3">
+            <div class="col-6">
+              <div class="metric-tile">
+                <div class="metric-label">Projects</div>
+                <div class="metric-value">
+                  {{ all_projects|length if all_projects is defined else 0 }}
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="metric-tile">
+                <div class="metric-label">Focus Areas</div>
+                <div class="metric-value">NLP • CV • Tabular</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="metric-tile">
+                <div class="metric-label">Keywords</div>
+                <div class="metric-tags">
+                  <span>MLOps</span>
+                  <span>LLMs</span>
+                  <span>Experiment Tracking</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Featured Projects -->
+<section class="section-padding bg-gradient-deep">
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 align-items-end mb-4">
+      <div class="col-md-8">
+        <h2 class="section-title">Featured projects</h2>
+        <p class="text-secondary-300 mb-0">
+          A curated selection of ML/AI work. Each project is backed by
+          reproducible code, clear documentation, and practical impact.
+        </p>
+      </div>
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('projects') }}" class="link-secondary-200">
+          View all projects →
+        </a>
+      </div>
+    </div>
+
+    <div class="row gx-4 gx-lg-5 gy-4">
+      {% if featured_projects and featured_projects|length > 0 %}
+        {% for project in featured_projects %}
+          <div class="col-md-6 col-lg-4">
+            <a
+              href="{{ url_for('project_detail', project_id=project['id']) }}"
+              class="project-card-link"
+            >
+              <article class="project-card glass-panel h-100">
+                <div class="project-badge">
+                  Featured
+                </div>
+                <h3 class="h5 fw-semibold mb-1">
+                  {{ project["title"] }}
+                </h3>
+                {% if project["subtitle"] %}
+                <p class="small text-secondary-300 mb-2">
+                  {{ project["subtitle"] }}
+                </p>
+                {% endif %}
+                <p class="small text-secondary-200 mb-3">
+                  {{ project["short_summary"] }}
+                </p>
+                {% if project["tech_stack"] %}
+                  <div class="project-tech">
+                    {% for tech in project["tech_stack"].split(",") %}
+                      <span class="pill pill-sm">
+                        {{ tech.strip() }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </article>
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12">
+          <div class="text-center text-secondary-300">
+            <p class="mb-1">
+              No projects added yet.
+            </p>
+            <p class="small text-secondary-400">
+              Once you insert rows into the <code>projects</code> table in
+              <code>portfolio.db</code>, they will appear here automatically.
+            </p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Skills / Stack Section -->
+<section class="section-padding">
+  <div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 gy-4 align-items-stretch">
+      <div class="col-lg-6">
+        <div class="glass-panel h-100">
+          <h2 class="section-title mb-3">What I work with</h2>
+          <p class="text-secondary-300">
+            From experiments in notebooks to production APIs, I focus on clean,
+            reproducible workflows and models that hold up beyond the first demo.
+          </p>
+          <div class="row mt-3 g-3">
+            <div class="col-sm-6">
+              <h3 class="h6 text-uppercase text-secondary-200">Modeling</h3>
+              <ul class="list-unstyled text-secondary-300 small mb-0">
+                <li>Supervised / unsupervised learning</li>
+                <li>Deep learning (CV, NLP)</li>
+                <li>Time-series forecasting</li>
+              </ul>
+            </div>
+            <div class="col-sm-6">
+              <h3 class="h6 text-uppercase text-secondary-200">Engineering</h3>
+              <ul class="list-unstyled text-secondary-300 small mb-0">
+                <li>Flask microservices</li>
+                <li>RESTful ML APIs</li>
+                <li>Experiment tracking</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="glass-panel h-100">
+          <h2 class="section-title mb-3">Tooling & ecosystem</h2>
+          <div class="row g-3 tech-grid small">
+            <div class="col-sm-6">
+              <span class="tech-label">Languages</span>
+              <p class="mb-0 text-secondary-300">
+                Python, SQL, a bit of JavaScript.
+              </p>
+            </div>
+            <div class="col-sm-6">
+              <span class="tech-label">ML / Data</span>
+              <p class="mb-0 text-secondary-300">
+                NumPy, Pandas, scikit-learn, PyTorch / TensorFlow.
+              </p>
+            </div>
+            <div class="col-sm-6">
+              <span class="tech-label">Serving</span>
+              <p class="mb-0 text-secondary-300">
+                Flask, REST, SQLite, container-ready designs.
+              </p>
+            </div>
+            <div class="col-sm-6">
+              <span class="tech-label">Practices</span>
+              <p class="mb-0 text-secondary-300">
+                Clean code, metrics-first mindset, reproducible pipelines.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include "footer.html" %}
+
