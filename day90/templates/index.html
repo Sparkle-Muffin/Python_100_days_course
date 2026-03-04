@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>The Most Dangerous Writing Clone</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    >
+
+    <style>
+      body {
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+        color: #e5e7eb;
+        display: flex;
+        align-items: stretch;
+      }
+
+      .danger-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .danger-container {
+          padding: 3rem;
+        }
+      }
+
+      .danger-card {
+        max-width: 960px;
+        margin: 0 auto;
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: 1rem;
+        box-shadow:
+          0 30px 60px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(148, 163, 184, 0.2);
+        display: flex;
+        flex-direction: column;
+        padding: 1.75rem;
+      }
+
+      @media (min-width: 992px) {
+        .danger-card {
+          padding: 2.25rem 2.5rem;
+        }
+      }
+
+      .danger-title {
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #f97316;
+      }
+
+      .danger-heading {
+        font-weight: 700;
+        font-size: 1.75rem;
+        color: #e5e7eb;
+        margin-bottom: 0.25rem;
+      }
+
+      @media (min-width: 768px) {
+        .danger-heading {
+          font-size: 2.1rem;
+        }
+      }
+
+      .danger-subtitle {
+        color: #9ca3af;
+        font-size: 0.95rem;
+      }
+
+      .danger-textarea {
+        width: 100%;
+        flex: 1;
+        margin-top: 1.75rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        background: rgba(15, 23, 42, 0.98);
+        color: #f9fafb;
+        padding: 1.25rem 1.5rem;
+        resize: none;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          ui-sans-serif, "Segoe UI", sans-serif;
+        font-size: 1rem;
+        line-height: 1.7;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+        outline: none;
+        transition: opacity 5s linear, border-color 150ms ease, box-shadow 150ms ease;
+      }
+
+      .danger-textarea:focus {
+        border-color: #f97316;
+        box-shadow:
+          0 0 0 1px rgba(249, 115, 22, 0.7),
+          0 0 0 8px rgba(249, 115, 22, 0.12);
+      }
+
+      .danger-textarea::placeholder {
+        color: #6b7280;
+      }
+
+      .danger-textarea.fading {
+        opacity: 0;
+      }
+
+      .danger-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: #9ca3af;
+      }
+
+      .status-pill {
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(55, 65, 81, 0.7);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .status-pill span {
+        color: #f97316;
+      }
+
+      .status-message {
+        min-height: 1.2em;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="danger-container">
+      <div class="danger-card">
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+          <div>
+            <div class="danger-title mb-2">The Most Dangerous Writing Clone</div>
+            <h1 class="danger-heading">If you stop, you lose everything.</h1>
+            <p class="danger-subtitle mb-0">
+              Keep your fingers moving. Pause for 5 seconds and your words begin to fade.
+              Stop for 10 seconds and they are gone forever.
+            </p>
+          </div>
+          <div class="text-md-end">
+            <div class="status-pill">
+              Status:
+              <span id="status-label">Writing</span>
+            </div>
+          </div>
+        </div>
+
+        <textarea
+          id="danger-textarea"
+          class="danger-textarea mt-3"
+          rows="12"
+          placeholder="Start typing. Don't stop..."
+          autofocus
+        ></textarea>
+
+        <div class="danger-footer">
+          <div class="status-message" id="status-message">
+            Keep typing. If you stop, your text will begin to fade after 5 seconds and disappear completely after 10 seconds.
+          </div>
+          <div class="text-muted small">
+            Built with Flask, Jinja &amp; Bootstrap.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const textarea = document.getElementById("danger-textarea");
+        const statusLabel = document.getElementById("status-label");
+        const statusMessage = document.getElementById("status-message");
+
+        if (!textarea) {
+          return;
+        }
+
+        const FADE_DELAY_MS = 5000;
+        const DELETE_DELAY_MS = 10000;
+
+        let fadeTimeoutId = null;
+        let deleteTimeoutId = null;
+
+        function clearTimers() {
+          if (fadeTimeoutId !== null) {
+            clearTimeout(fadeTimeoutId);
+            fadeTimeoutId = null;
+          }
+          if (deleteTimeoutId !== null) {
+            clearTimeout(deleteTimeoutId);
+            deleteTimeoutId = null;
+          }
+        }
+
+        function setStatus(label, message) {
+          if (statusLabel) {
+            statusLabel.textContent = label;
+          }
+          if (statusMessage) {
+            statusMessage.textContent = message;
+          }
+        }
+
+        function scheduleDangerTimers() {
+          clearTimers();
+
+          textarea.classList.remove("fading");
+          textarea.style.opacity = "1";
+
+          setStatus(
+            "Writing",
+            "Good. Keep typing. If you stop, your text will fade after 5 seconds and vanish after 10 seconds."
+          );
+
+          fadeTimeoutId = window.setTimeout(function () {
+            textarea.classList.add("fading");
+            setStatus(
+              "Fading",
+              "You paused. Your words are fading. Start typing now to rescue them."
+            );
+          }, FADE_DELAY_MS);
+
+          deleteTimeoutId = window.setTimeout(function () {
+            textarea.value = "";
+            textarea.classList.remove("fading");
+            textarea.style.opacity = "1";
+            setStatus(
+              "Lost",
+              "Time's up. All your text was deleted. Start again and don't stop."
+            );
+          }, DELETE_DELAY_MS);
+        }
+
+        function handleActivity() {
+          textarea.classList.remove("fading");
+          textarea.style.opacity = "1";
+          scheduleDangerTimers();
+        }
+
+        textarea.addEventListener("input", handleActivity);
+        textarea.addEventListener("keydown", handleActivity);
+        textarea.addEventListener("focus", handleActivity);
+
+        scheduleDangerTimers();
+      });
+    </script>
+  </body>
+</html>
+
