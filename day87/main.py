@@ -42,6 +42,13 @@ class Paddle(Turtle):
             new_x = max_x
         self.goto(new_x, self.ycor())
 
+    def move_to(self, x: float) -> None:
+        """Move paddle to x (turtle coordinates), clamped to play area."""
+        min_x = -SCREEN_WIDTH // 2 + PADDLE_WIDTH // 2
+        max_x = SCREEN_WIDTH // 2 - PADDLE_WIDTH // 2
+        new_x = max(min_x, min(max_x, x))
+        self.goto(new_x, self.ycor())
+
 
 class Ball(Turtle):
     def __init__(self) -> None:
@@ -163,6 +170,13 @@ def main() -> None:
     screen.onkeypress(paddle.move_right, "Right")
     screen.onkeypress(paddle.move_left, "a")
     screen.onkeypress(paddle.move_right, "d")
+
+    def on_mouse_motion(event) -> None:
+        # Convert pixel coords (origin top-left) to turtle coords (origin center)
+        turtle_x = event.x - SCREEN_WIDTH / 2
+        paddle.move_to(turtle_x)
+
+    screen.getcanvas().bind("<Motion>", on_mouse_motion)
 
     game_is_on = True
 
