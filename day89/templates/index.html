@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+
+{% block title %}Kanban Board{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+  <h1 class="h3 mb-0">Kanban board</h1>
+
+  <form class="d-flex flex-wrap gap-2" method="post" action="{{ url_for('add_task') }}">
+    <input
+      type="text"
+      name="title"
+      class="form-control"
+      placeholder="New task title"
+      required
+    >
+    <select class="form-select" name="status">
+      <option value="todo" selected>To Do</option>
+      <option value="in_progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i>Add
+    </button>
+  </form>
+</div>
+
+<div class="row g-3 kanban-columns">
+  {% set status_labels = {
+    "todo": "To Do",
+    "in_progress": "In Progress",
+    "done": "Done"
+  } %}
+
+  {% for status in ["todo", "in_progress", "done"] %}
+    <div class="col-12 col-md-4">
+      <div class="card border-0 shadow-sm kanban-column kanban-column-{{ status }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span class="fw-semibold">
+            {{ status_labels[status] }}
+          </span>
+          <span class="badge bg-light text-muted">
+            {{ columns[status]|length if columns[status] is defined else 0 }}
+          </span>
+        </div>
+        <div class="card-body p-2">
+          {% if columns[status] %}
+            {% for task in columns[status] %}
+              <div class="card mb-2 shadow-sm border-0 task-card">
+                <div class="card-body p-2">
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h2 class="h6 mb-0">{{ task.title }}</h2>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a
+                        href="{{ url_for('edit_task', task_id=task.id) }}"
+                        class="btn btn-outline-secondary"
+                        title="Edit task"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <form
+                        method="post"
+                        action="{{ url_for('delete_task', task_id=task.id) }}"
+                        onsubmit="return confirm('Delete this task?');"
+                      >
+                        <button type="submit" class="btn btn-outline-danger" title="Delete task">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  {% if task.description %}
+                    <p class="small text-muted mb-2">
+                      {{ task.description }}
+                    </p>
+                  {% endif %}
+
+                  <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                      Created {{ task.created_at }}
+                    </small>
+                    <div class="btn-group btn-group-sm" role="group">
+                      {% if status != "todo" %}
+                        <form method="post" action="{{ url_for('move_task', task_id=task.id) }}">
+                          <input type="hidden" name="new_status" value="todo">
+                          <button type="submit" class="btn btn-outline-secondary" title="Move to To Do">
+                            <i class="bi bi-arrow-left"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                      {% if status != "in_progress" %}
+                        <form method="post" action="{{ url_for('move_task', task_id=task.id) }}">
+                          <input type="hidden" name="new_status" value="in_progress">
+                          <button type="submit" class="btn btn-outline-secondary" title="Move to In Progress">
+                            <i class="bi bi-lightning-charge"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                      {% if status != "done" %}
+                        <form method="post" action="{{ url_for('move_task', task_id=task.id) }}">
+                          <input type="hidden" name="new_status" value="done">
+                          <button type="submit" class="btn btn-outline-secondary" title="Move to Done">
+                            <i class="bi bi-check2"></i>
+                          </button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="text-muted text-center small my-3">
+              No tasks in this column yet.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+

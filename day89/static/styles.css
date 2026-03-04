@@ -1,0 +1,49 @@
+body {
+  min-height: 100vh;
+}
+
+.kanban-columns {
+  align-items: stretch;
+}
+
+.kanban-column {
+  height: 100%;
+}
+
+.kanban-column-todo .card-header {
+  border-bottom: 3px solid #0d6efd;
+}
+
+.kanban-column-in_progress .card-header {
+  border-bottom: 3px solid #ffc107;
+}
+
+.kanban-column-done .card-header {
+  border-bottom: 3px solid #198754;
+}
+
+.task-card {
+  border-radius: 0.5rem;
+}
+
+.task-card .card-body {
+  background-color: #ffffff;
+}
+
+@media (min-width: 768px) {
+  .kanban-columns .col-md-4 {
+    display: flex;
+  }
+
+  .kanban-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kanban-column .card-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 220px);
+  }
+}
+
