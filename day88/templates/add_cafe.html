@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block title %}Add a new cafe · Cafe & Wifi{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-lg-5">
+                        <h1 class="h3 mb-3">Add a new cafe</h1>
+                        <p class="text-muted mb-4">
+                            Fill in the details below to share a great work-friendly cafe with others.
+                        </p>
+
+                        <form method="post" action="{{ url_for('add_cafe_page') }}" novalidate>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Cafe name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="form-text">Example: The Coffee House</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="location" name="location" required>
+                                <div class="form-text">City or district, e.g. "London" or "Berlin – Mitte".</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="map_url" class="form-label">Google Maps URL</label>
+                                <input type="url" class="form-control" id="map_url" name="map_url" required>
+                                <div class="form-text">
+                                    Paste a share link from Google Maps so visitors can get directions easily.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="img_url" class="form-label">Image URL</label>
+                                <input type="url" class="form-control" id="img_url" name="img_url" required>
+                                <div class="form-text">A nice exterior or interior photo (any publicly accessible URL).</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="seats" class="form-label">Seating</label>
+                                <input type="text" class="form-control" id="seats" name="seats" required>
+                                <div class="form-text">e.g. "10–20", "plenty", or "a few small tables".</div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="coffee_price" class="form-label">Coffee price</label>
+                                    <input type="text" class="form-control" id="coffee_price" name="coffee_price"
+                                           placeholder="$3.50">
+                                    <div class="form-text">Optional, e.g. "$3.50", "€2.80", or "from £2.90".</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label d-block">Amenities</label>
+                                <div class="row gy-2">
+                                    <div class="col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="has_wifi" name="has_wifi" checked>
+                                            <label class="form-check-label" for="has_wifi">
+                                                Reliable Wi‑Fi
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="has_sockets" name="has_sockets">
+                                            <label class="form-check-label" for="has_sockets">
+                                                Plenty of power sockets
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="can_take_calls" name="can_take_calls">
+                                            <label class="form-check-label" for="can_take_calls">
+                                                Suitable for calls
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="has_toilet" name="has_toilet" checked>
+                                            <label class="form-check-label" for="has_toilet">
+                                                Customer toilet
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg me-1"></i>Save cafe
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

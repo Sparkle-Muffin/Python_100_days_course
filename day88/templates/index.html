@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Cafe & Wifi Finder{% endblock %}
+
+{% block content %}
+<section class="py-5 hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-5 fw-bold mb-3">Discover your next favorite cafe</h1>
+                <p class="lead mb-4">
+                    Browse hand-picked work-friendly cafes, check amenities at a glance,
+                    and jump straight into Google Maps for directions.
+                </p>
+                <a href="{{ url_for('add_cafe_page') }}" class="btn btn-primary btn-lg me-2">
+                    <i class="bi bi-plus-lg me-1"></i>Add a new cafe
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-map shadow rounded-4 overflow-hidden">
+                    <iframe
+                        src="https://www.google.com/maps?q=cafe&output=embed"
+                        width="100%"
+                        height="320"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h3 mb-0">All cafes</h2>
+            <span class="text-muted">{{ cafes|length }} cafe{{ cafes|length == 1 and "" or "s" }}</span>
+        </div>
+
+        {% if cafes %}
+            <div class="row g-4">
+                {% for cafe in cafes %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card cafe-card h-100 shadow-sm border-0">
+                            <div class="ratio ratio-4x3">
+                                <iframe
+                                    src="https://www.google.com/maps?q={{ (cafe.name ~ ' ' ~ cafe.location)|urlencode }}&output=embed"
+                                    style="border:0;"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-1">{{ cafe.name }}</h5>
+                                        <p class="card-subtitle text-muted small mb-1">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ cafe.location }}
+                                        </p>
+                                    </div>
+                                    <form method="post" action="{{ url_for('delete_cafe_page', cafe_id=cafe.id) }}"
+                                          onsubmit="return confirm('Delete {{ cafe.name }}? This cannot be undone.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete this cafe">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <p class="small text-muted mb-2">
+                                    Seats: {{ cafe.seats }}
+                                    {% if cafe.coffee_price %}
+                                        &middot; Coffee: {{ cafe.coffee_price }}
+                                    {% endif %}
+                                </p>
+
+                                <div class="mb-3">
+                                    <span class="badge rounded-pill {{ 'bg-success' if cafe.has_wifi else 'bg-secondary' }}">
+                                        <i class="bi bi-wifi me-1"></i>Wi‑Fi
+                                    </span>
+                                    <span class="badge rounded-pill {{ 'bg-success' if cafe.has_sockets else 'bg-secondary' }}">
+                                        <i class="bi bi-plug me-1"></i>Sockets
+                                    </span>
+                                    <span class="badge rounded-pill {{ 'bg-success' if cafe.can_take_calls else 'bg-secondary' }}">
+                                        <i class="bi bi-telephone me-1"></i>Calls OK
+                                    </span>
+                                    <span class="badge rounded-pill {{ 'bg-success' if cafe.has_toilet else 'bg-secondary' }}">
+                                        <i class="bi bi-droplet me-1"></i>Toilet
+                                    </span>
+                                </div>
+
+                                <div class="mt-auto d-flex justify-content-between align-items-center">
+                                    <a href="{{ cafe.map_url }}" target="_blank" rel="noopener"
+                                       class="btn btn-sm btn-primary">
+                                        <i class="bi bi-map me-1"></i>Open in Google Maps
+                                    </a>
+                                    <a href="{{ cafe.img_url }}" target="_blank" rel="noopener"
+                                       class="small link-secondary text-decoration-none">
+                                        View photo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <p class="lead mb-3">No cafes yet. Be the first to add one!</p>
+                <a href="{{ url_for('add_cafe_page') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Add a cafe
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
