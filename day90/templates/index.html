@@ -139,6 +139,20 @@
         color: #f97316;
       }
 
+      .countdown-timer {
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+        font-size: 1.5rem;
+      }
+
+      .countdown-timer.countdown-yellow {
+        color: #eab308;
+      }
+
+      .countdown-timer.countdown-red {
+        color: #dc2626;
+      }
+
       .status-message {
         min-height: 1.2em;
       }
@@ -157,10 +171,13 @@
               Stop for 10 seconds and they are gone forever.
             </p>
           </div>
-          <div class="text-md-end">
+          <div class="text-md-end d-flex flex-column align-items-md-end gap-2">
             <div class="status-pill">
               Status:
               <span id="status-label">Writing</span>
+            </div>
+            <div class="small text-muted">
+              Time left: <span id="countdown" class="countdown-timer countdown-yellow">10</span>s
             </div>
           </div>
         </div>
@@ -196,9 +213,14 @@
 
         const FADE_DELAY_MS = 5000;
         const DELETE_DELAY_MS = 10000;
+        const COUNTDOWN_SECONDS = 10;
 
         let fadeTimeoutId = null;
         let deleteTimeoutId = null;
+        let countdownIntervalId = null;
+        let countdownSecondsLeft = COUNTDOWN_SECONDS;
+
+        const countdownEl = document.getElementById("countdown");
 
         function clearTimers() {
           if (fadeTimeoutId !== null) {
@@ -209,6 +231,34 @@
             clearTimeout(deleteTimeoutId);
             deleteTimeoutId = null;
           }
+          if (countdownIntervalId !== null) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+          }
+        }
+
+        function updateCountdownDisplay() {
+          if (!countdownEl) return;
+          countdownEl.textContent = countdownSecondsLeft;
+          countdownEl.classList.remove("countdown-yellow", "countdown-red");
+          if (countdownSecondsLeft > 5) {
+            countdownEl.classList.add("countdown-yellow");
+          } else if (countdownSecondsLeft > 0) {
+            countdownEl.classList.add("countdown-red");
+          }
+        }
+
+        function startCountdown() {
+          countdownSecondsLeft = COUNTDOWN_SECONDS;
+          updateCountdownDisplay();
+          countdownIntervalId = window.setInterval(function () {
+            countdownSecondsLeft -= 1;
+            updateCountdownDisplay();
+            if (countdownSecondsLeft <= 0 && countdownIntervalId !== null) {
+              clearInterval(countdownIntervalId);
+              countdownIntervalId = null;
+            }
+          }, 1000);
         }
 
         function setStatus(label, message) {
@@ -224,12 +274,13 @@
           clearTimers();
 
           textarea.classList.remove("fading");
-          textarea.style.opacity = "1";
 
           setStatus(
             "Writing",
             "Good. Keep typing. If you stop, your text will fade after 5 seconds and vanish after 10 seconds."
           );
+
+          startCountdown();
 
           fadeTimeoutId = window.setTimeout(function () {
             textarea.classList.add("fading");
@@ -242,7 +293,6 @@
           deleteTimeoutId = window.setTimeout(function () {
             textarea.value = "";
             textarea.classList.remove("fading");
-            textarea.style.opacity = "1";
             setStatus(
               "Lost",
               "Time's up. All your text was deleted. Start again and don't stop."
@@ -252,7 +302,6 @@
 
         function handleActivity() {
           textarea.classList.remove("fading");
-          textarea.style.opacity = "1";
           scheduleDangerTimers();
         }
 
