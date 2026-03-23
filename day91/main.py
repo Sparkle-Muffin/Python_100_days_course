@@ -7,12 +7,14 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
+import textract
+from PyPDF2 import PdfReader
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 OUTPUT_DIR = BASE_DIR / "output"
 
-SUPPORTED_EXTENSIONS = {".txt", ".docx", ".pdf"}
+SUPPORTED_EXTENSIONS = {".txt", ".doc", ".docx", ".odt", ".pdf"}
 
 
 def read_txt(path: Path) -> str:
@@ -34,34 +36,33 @@ def read_docx(path: Path) -> str:
     return "\n".join(node.text for node in text_nodes if node.text)
 
 
+def read_odt(path: Path) -> str:
+    """
+    Read text from a .odt file without third-party packages.
+    An .odt file is a ZIP archive with text in content.xml.
+    """
+    with zipfile.ZipFile(path) as zf:
+        with zf.open("content.xml") as content_xml:
+            xml_data = content_xml.read()
+
+    root = ET.fromstring(xml_data)
+    namespace = {"text": "urn:oasis:names:tc:opendocument:xmlns:text:1.0"}
+    text_nodes = root.findall(".//text:p", namespace)
+    return "\n".join("".join(node.itertext()).strip() for node in text_nodes if "".join(node.itertext()).strip())
+
+
+def read_doc(path: Path) -> str:
+    # For .doc support install: pip install textract
+
+    return textract.process(str(path)).decode("utf-8", errors="replace")
+
+
 def read_pdf(path: Path) -> str:
-    """
-    Try reading PDF text with libraries if they are already available.
-    No installation is performed.
-    """
-    try:
-        from pypdf import PdfReader  # type: ignore
-
-        reader = PdfReader(str(path))
-        parts = []
-        for page in reader.pages:
-            parts.append(page.extract_text() or "")
-        return "\n".join(parts).strip()
-    except ImportError:
-        pass
-
-    try:
-        from PyPDF2 import PdfReader  # type: ignore
-
-        reader = PdfReader(str(path))
-        parts = []
-        for page in reader.pages:
-            parts.append(page.extract_text() or "")
-        return "\n".join(parts).strip()
-    except ImportError as exc:
-        raise RuntimeError(
-            "Cannot read PDF: neither 'pypdf' nor 'PyPDF2' is available in this environment."
-        ) from exc
+    reader = PdfReader(str(path))
+    parts = []
+    for page in reader.pages:
+        parts.append(page.extract_text() or "")
+    return "\n".join(parts).strip()
 
 
 def read_file_text(path: Path) -> str:
@@ -73,8 +74,12 @@ def read_file_text(path: Path) -> str:
 
     if suffix == ".txt":
         return read_txt(path)
+    if suffix == ".doc":
+        return read_doc(path)
     if suffix == ".docx":
         return read_docx(path)
+    if suffix == ".odt":
+        return read_odt(path)
     return read_pdf(path)
 
 
@@ -99,14 +104,14 @@ def send_text_to_tts_server(text: str, server_url: str) -> bytes:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Read text from .txt/.docx/.pdf, send it to TTS server, "
+            "Read text from .txt/.doc/.docx/.odt/.pdf, send it to TTS server, "
             "and save returned audio file."
         )
     )
     parser.add_argument(
         "input_file",
         type=Path,
-        help="Path to input file (.txt, .docx, .pdf).",
+        help="Path to input file (.txt, .doc, .docx, .odt, .pdf).",
     )
     parser.add_argument(
         "--server-url",

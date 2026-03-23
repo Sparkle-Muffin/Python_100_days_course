@@ -47,6 +47,8 @@ micromamba install scikit-learn
 pip install torch
 pip install "kokoro>=0.9.4" soundfile
 sudo apt-get install espeak-ng
+micromamba install pypdf2
+micromamba install textract
 
 day71:
 python -m venv myfirstproject
