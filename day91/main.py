@@ -1,3 +1,9 @@
+# Example use
+# Default (Polish voice):
+# python day91/main.py day91/input/test_file.txt
+# With voice specified:
+# python day91/main.py day91/input/test_file.txt --voice en_US-ryan-high
+
 from __future__ import annotations
 
 import argparse
@@ -83,8 +89,12 @@ def read_file_text(path: Path) -> str:
     return read_pdf(path)
 
 
-def send_text_to_tts_server(text: str, server_url: str) -> bytes:
-    payload = json.dumps({"text": text}, ensure_ascii=False).encode("utf-8")
+def send_text_to_tts_server(text: str, server_url: str, voice: str | None = None) -> bytes:
+    request_data = {"text": text}
+    if voice:
+        request_data["voice"] = voice
+
+    payload = json.dumps(request_data, ensure_ascii=False).encode("utf-8")
     request = urllib.request.Request(
         url=server_url,
         data=payload,
@@ -124,6 +134,11 @@ def main() -> int:
         default=OUTPUT_DIR,
         help="Directory for saved .wav file (default: output).",
     )
+    parser.add_argument(
+        "--voice",
+        default=None,
+        help="Optional voice name/id to send to TTS server.",
+    )
     args = parser.parse_args()
 
     input_path = args.input_file
@@ -145,7 +160,7 @@ def main() -> int:
     output_path = args.output_dir / f"{input_path.stem}.wav"
 
     try:
-        audio_bytes = send_text_to_tts_server(text, args.server_url)
+        audio_bytes = send_text_to_tts_server(text, args.server_url, args.voice)
     except Exception as err:
         print(f"Failed to synthesize speech: {err}", file=sys.stderr)
         return 1
