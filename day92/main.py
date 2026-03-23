@@ -1,8 +1,8 @@
-from collections import Counter
 from io import BytesIO
 import base64
 
 from flask import Flask, flash, redirect, render_template, request, url_for
+import numpy as np
 from PIL import Image, UnidentifiedImageError
 
 # cd day92
@@ -11,8 +11,8 @@ from PIL import Image, UnidentifiedImageError
 app = Flask(__name__)
 app.secret_key = "change-me-in-production"
 MAX_COLORS = 10
-PALETTE_SIZE = 32
 MAX_ANALYSIS_PIXELS = 250_000
+BIN_SIZE = 24
 
 
 def rgb_to_hex(color):
@@ -24,9 +24,13 @@ def top_colors_from_image(image_bytes, top_n=10):
     """
     Return top N dominant RGB colors with counts.
 
-    Why quantize first:
-    Exact pixel counting overweights tiny shade differences (e.g. subtitle antialiasing),
-    which often produces mostly white/gray/black output.
+    Strategy:
+    - Resize very large images for speed.
+    - Snap channels to fixed bins (24) to merge near shades consistently.
+    - Count resulting colors and return the most frequent ones.
+
+    This produces "web extractor style" palettes closer to tools that use
+    fixed bucket quantization rather than adaptive palettes.
     """
     image = Image.open(BytesIO(image_bytes)).convert("RGB")
 
@@ -34,23 +38,24 @@ def top_colors_from_image(image_bytes, top_n=10):
     if image.width * image.height > MAX_ANALYSIS_PIXELS:
         image.thumbnail((1000, 1000))
 
-    # Cluster similar shades into a limited adaptive palette.
-    quantized = image.quantize(colors=PALETTE_SIZE, method=Image.Quantize.MEDIANCUT)
-    clustered_rgb = quantized.convert("RGB")
+    pixel_array = np.array(image, dtype=np.float32)
+    binned = np.clip(np.round(pixel_array / BIN_SIZE) * BIN_SIZE, 0, 255).astype(np.uint8)
 
-    color_counts = Counter(clustered_rgb.getdata())
-    most_common = color_counts.most_common(top_n)
-    total_pixels = clustered_rgb.width * clustered_rgb.height
+    flat_pixels = binned.reshape(-1, 3)
+    unique_colors, counts = np.unique(flat_pixels, axis=0, return_counts=True)
+    sorted_idx = np.argsort(counts)[::-1][:top_n]
+    total_pixels = flat_pixels.shape[0]
 
     return [
         {
             "rank": idx + 1,
-            "rgb": rgb,
-            "hex": rgb_to_hex(rgb),
-            "count": count,
+            "rgb": tuple(map(int, unique_colors[color_idx])),
+            "hex": rgb_to_hex(tuple(map(int, unique_colors[color_idx]))),
+            "count": int(counts[color_idx]),
             "percentage": (count / total_pixels) * 100,
         }
-        for idx, (rgb, count) in enumerate(most_common)
+        for idx, color_idx in enumerate(sorted_idx)
+        for count in [int(counts[color_idx])]
     ]
 
 
