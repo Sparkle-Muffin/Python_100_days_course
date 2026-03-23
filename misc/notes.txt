@@ -30,6 +30,13 @@ https://github.com/github/gitignore
 
 https://learngitbranching.js.org/
 
+TTS:
+https://github.com/hexgrad/kokoro
+https://github.com/nazdridoy/kokoro-tts
+https://github.com/coqui-ai/TTS
+https://github.com/idiap/coqui-ai-TTS
+https://github.com/OHF-Voice/piper1-gpl
+
 to see git log:
 github -> insights -> network
 https://github.com/github/gitignore/network

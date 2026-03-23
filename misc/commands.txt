@@ -9,9 +9,12 @@ micromamba deactivate
 
 micromamba env list
 micromamba list
+pip list
+pip show notebook
 
 # Remove package:
 micromamba remove notebook
+pip uninstall notebook
 
 micromamba install prettytable
 pip install colorgram.py
@@ -41,6 +44,9 @@ micromamba install scipy
 micromamba install pooch
 micromamba install seaborn
 micromamba install scikit-learn
+pip install torch
+pip install "kokoro>=0.9.4" soundfile
+sudo apt-get install espeak-ng
 
 day71:
 python -m venv myfirstproject
@@ -52,6 +58,10 @@ python -m venv day71/venv
 source day71/venv/bin/activate
 deactivate
 pip install -r day71/requirements.txt
+
+day91:
+(Japanese text processing)
+unidic/dicdir/mecabrc
 
 
 # Run Jupyter Notebook:
