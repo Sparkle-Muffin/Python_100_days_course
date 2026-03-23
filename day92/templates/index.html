@@ -27,6 +27,15 @@
 
           {% if colors %}
             <h2 class="h5 mb-3">Results for: <span class="text-break">{{ filename }}</span></h2>
+            {% if image_data_url %}
+              <div class="mb-4">
+                <img
+                  src="{{ image_data_url }}"
+                  alt="Uploaded image preview"
+                  class="img-fluid rounded border shadow-sm"
+                />
+              </div>
+            {% endif %}
             <div class="table-responsive">
               <table class="table table-striped align-middle">
                 <thead>

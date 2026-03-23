@@ -1,5 +1,6 @@
 from collections import Counter
 from io import BytesIO
+import base64
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 from PIL import Image, UnidentifiedImageError
@@ -57,6 +58,7 @@ def top_colors_from_image(image_bytes, top_n=10):
 def index():
     colors = None
     filename = None
+    image_data_url = None
 
     if request.method == "POST":
         uploaded_file = request.files.get("image")
@@ -69,6 +71,8 @@ def index():
             image_bytes = uploaded_file.read()
             colors = top_colors_from_image(image_bytes, top_n=MAX_COLORS)
             filename = uploaded_file.filename
+            encoded = base64.b64encode(image_bytes).decode("utf-8")
+            image_data_url = f"data:{uploaded_file.mimetype};base64,{encoded}"
         except UnidentifiedImageError:
             flash("That file is not a valid image.", "danger")
             return redirect(url_for("index"))
@@ -76,7 +80,12 @@ def index():
             flash("Something went wrong while processing the image.", "danger")
             return redirect(url_for("index"))
 
-    return render_template("index.html", colors=colors, filename=filename)
+    return render_template(
+        "index.html",
+        colors=colors,
+        filename=filename,
+        image_data_url=image_data_url,
+    )
 
 
 if __name__ == "__main__":
