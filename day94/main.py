@@ -11,8 +11,8 @@ LOW_SCAN_HEIGHT = 45
 HIGH_SCAN_HEIGHT = 35
 LOW_DARK_PIXEL_THRESHOLD = 35
 HIGH_DARK_PIXEL_THRESHOLD = 25
-JUMP_COOLDOWN_SECONDS = 0.12
-DUCK_HOLD_SECONDS = 0.18             
+JUMP_COOLDOWN_SECONDS = 0.06
+DUCK_HOLD_SECONDS = 0.18
 LOOP_SLEEP_SECONDS = 0.01
 
 
@@ -48,7 +48,12 @@ def main():
     while True:
         now = time.time()
 
-        dino_x, dino_y = pyautogui.position()
+        # # Get mouse cursor position
+        # dino_x, dino_y = pyautogui.position()
+
+        # Fixed dino position (his nose is at 210, 651)
+        dino_x = 210                                                                          
+        dino_y = 651
 
         # Regions in front of dino:      
         # - low region catches cactus
@@ -76,7 +81,7 @@ def main():
         high_obstacle = high_dark_pixels > HIGH_DARK_PIXEL_THRESHOLD
 
         # If bird is detected high, duck briefly.
-        if high_obstacle and not low_obstacle:
+        if high_obstacle and not low_obstacle:         
             if not ducking:
                 pyautogui.keyDown("down")
                 ducking = True
@@ -90,7 +95,7 @@ def main():
             # Jump for low obstacle if cooldown passed.
             if low_obstacle and (now - last_jump_time) >= JUMP_COOLDOWN_SECONDS:
                 pyautogui.press("space")
-                last_jump_time = now
+                last_jump_time = now        
 
         time.sleep(LOOP_SLEEP_SECONDS)
 
