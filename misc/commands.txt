@@ -9,6 +9,7 @@ micromamba deactivate
 
 micromamba env list
 micromamba list
+micromamba list pillow
 pip list
 pip show notebook
 
@@ -49,6 +50,8 @@ pip install "kokoro>=0.9.4" soundfile
 sudo apt-get install espeak-ng
 micromamba install pypdf2
 micromamba install textract
+micromamba install pyautogui
+micromamba install pillow
 
 day71:
 python -m venv myfirstproject
