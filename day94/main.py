@@ -6,20 +6,28 @@ from PIL import ImageOps
 # Tune these values if your browser zoom/resolution differs.
 START_DELAY_SECONDS = 3
 SCAN_HEIGHT = 100
-DARK_PIXEL_THRESHOLD = 35
+CONTRAST_PIXEL_THRESHOLD = 35
 LOOP_SLEEP_SECONDS = 0.01
 FIRST_PERIOD = 6 # seconds
 SECOND_PERIOD = 10 # seconds
 THIRD_PERIOD = 20 # seconds
 
 
-def dark_pixel_count(image, darkness_cutoff=95):
+def detect_dark_theme(image, darkness_cutoff=95, dark_ratio_threshold=0.5):
     """
-    Count how many pixels are darker than darkness_cutoff.
-    Lower cutoff means only very dark pixels are counted.
+    Determine if the game is in dark theme using the same screenshot.
+    In dark theme, background is dark, so usually >50% of pixels are dark.
+    Returns:
+    - is_dark_theme (bool)
+    - dark_pixels (int)
+    - total_pixels (int)
     """
     grayscale = ImageOps.grayscale(image)
-    return sum(1 for pixel in grayscale.getdata() if pixel < darkness_cutoff)
+    pixels = list(grayscale.getdata())
+    total_pixels = len(pixels)
+    dark_pixels = sum(1 for pixel in pixels if pixel < darkness_cutoff)
+    dark_ratio = dark_pixels / total_pixels if total_pixels else 0
+    return dark_ratio > dark_ratio_threshold, dark_pixels, total_pixels
 
 
 def main():
@@ -36,13 +44,13 @@ def main():
     while True:
         pyautogui.failSafeCheck()
         now = time.time()
-        if now - start_time >= FIRST_PERIOD:
-            offset = 50
-            scan_width = 230
-        if now - start_time >= SECOND_PERIOD:
-            offset = 80
         if now - start_time >= THIRD_PERIOD:
             offset = 150
+        elif now - start_time >= SECOND_PERIOD:
+            offset = 80
+        elif now - start_time >= FIRST_PERIOD:
+            offset = 50
+            scan_width = 230
 
         print(f"{now - start_time} seconds elapsed")
         print(f"Offset: {offset}")
@@ -61,8 +69,15 @@ def main():
         )
 
         shot = pyautogui.screenshot(region=region)
-        dark_pixels = dark_pixel_count(shot)
-        obstacle = dark_pixels > DARK_PIXEL_THRESHOLD                  
+        is_dark_theme, dark_pixels, total_pixels = detect_dark_theme(shot)
+        light_pixels = total_pixels - dark_pixels
+
+        # Light theme: obstacles are dark.
+        # Dark theme: obstacles are light.
+        if is_dark_theme:
+            obstacle = light_pixels > CONTRAST_PIXEL_THRESHOLD
+        else:
+            obstacle = dark_pixels > CONTRAST_PIXEL_THRESHOLD
 
         if obstacle:
             pyautogui.press("space")
