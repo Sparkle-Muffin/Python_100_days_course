@@ -52,6 +52,7 @@ micromamba install pypdf2
 micromamba install textract
 micromamba install pyautogui
 micromamba install pillow
+micromamba install pygame
 
 day71:
 python -m venv myfirstproject
