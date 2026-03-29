@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Potwierdzenie — Serpentarium{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="rounded-4 success-panel p-4 p-md-5 shadow-sm border border-success border-opacity-25">
+      <div class="text-center mb-4">
+        <span class="display-4 d-block mb-2" aria-hidden="true">✓</span>
+        <h1 class="font-serif fw-bold text-cream h3 mb-1">Zamówienie przyjęte</h1>
+        <p class="text-muted-custom small mb-0">Numer zamówienia: <strong class="text-cream">#{{ order.id }}</strong></p>
+      </div>
+
+      <ul class="list-group list-group-flush rounded-3 border border-secondary border-opacity-25 overflow-hidden mb-4">
+        <li class="list-group-item bg-transparent text-muted-custom d-flex justify-content-between">
+          <span>Produkt</span>
+          <span class="text-cream text-end">{{ order.product_name }}</span>
+        </li>
+        <li class="list-group-item bg-transparent text-muted-custom d-flex justify-content-between">
+          <span>Kwota</span>
+          <span class="text-cream">{{ "%.2f"|format(order.price_cents / 100) }} PLN</span>
+        </li>
+        <li class="list-group-item bg-transparent text-muted-custom d-flex justify-content-between">
+          <span>Płatność</span>
+          <span class="text-cream text-end">{{ payment_methods[order.payment_method] }}</span>
+        </li>
+        <li class="list-group-item bg-transparent text-muted-custom d-flex justify-content-between">
+          <span>Dostawa</span>
+          <span class="text-cream text-end">{{ delivery_methods[order.delivery_method] }}</span>
+        </li>
+        <li class="list-group-item bg-transparent text-muted-custom small">
+          Data złożenia: {{ order.created_at.strftime("%Y-%m-%d %H:%M UTC") if order.created_at else "—" }}
+        </li>
+      </ul>
+
+      <p class="text-muted-custom small text-center mb-4">
+        To ćwiczenie demonstracyjne — nie wysyłamy e-maili ani paczek. Dane służą wyłącznie do podglądu w SQLite.
+      </p>
+
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{{ url_for('index') }}" class="btn btn-accent">Wróć do katalogu</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

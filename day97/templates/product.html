@@ -22,16 +22,21 @@
     <h1 class="font-serif fw-bold text-cream display-6 mb-3">{{ product.name }}</h1>
     <p class="price-tag price-tag-lg mb-4">{{ "%.2f"|format(product.price_cents / 100) }} PLN</p>
     <p class="product-description text-muted-custom mb-4 mb-lg-5">{{ product.description }}</p>
-    <form action="{{ url_for('create_checkout_session') }}" method="post" class="d-flex flex-wrap gap-2">
-      <input type="hidden" name="product_id" value="{{ product.id }}" />
-      <button type="submit" class="btn btn-accent btn-lg px-4">
-        Kup teraz (Stripe Checkout)
-      </button>
+    <div class="d-flex flex-wrap gap-2">
+      {% if current_user %}
+      <a href="{{ url_for('checkout', product_id=product.id) }}" class="btn btn-accent btn-lg px-4">
+        Zamów (dane dostawy i płatność)
+      </a>
+      {% else %}
+      <a href="{{ url_for('login', next=url_for('checkout', product_id=product.id)) }}" class="btn btn-accent btn-lg px-4">
+        Zaloguj się, aby zamówić
+      </a>
+      <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">Utwórz konto</a>
+      {% endif %}
       <a href="{{ url_for('index') }}" class="btn btn-outline-light btn-lg">Wróć do katalogu</a>
-    </form>
+    </div>
     <p class="small text-muted mt-3 mb-0">
-      Po kliknięciu nastąpi przekierowanie na zabezpieczoną stronę płatności Stripe. Użyj kart testowych z
-      <a href="https://stripe.com/docs/testing" class="link-accent" target="_blank" rel="noopener noreferrer">dokumentacji Stripe</a>.
+      Cały proces zakupu jest symulowany na potrzeby nauki — bez prawdziwych płatności i przesyłek.
     </p>
   </div>
 </div>

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Zamówienie — {{ product.name }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb small mb-0">
+    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="link-light link-underline-opacity-25">Katalog</a></li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('product_detail', product_id=product.id) }}" class="link-light link-underline-opacity-25">{{ product.name }}</a>
+    </li>
+    <li class="breadcrumb-item active text-muted" aria-current="page">Zamówienie</li>
+  </ol>
+</nav>
+
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-10 col-xl-8">
+    <h1 class="font-serif fw-bold text-cream h2 mb-4">Dane zamówienia</h1>
+
+    <div class="row g-4">
+      <div class="col-md-5">
+        <div class="rounded-3 overflow-hidden border border-secondary border-opacity-25 checkout-thumb-wrap">
+          <div class="ratio ratio-1x1">
+            <img
+              src="{{ url_for('catalog_asset', slug=product.id, filename=product.image_file) }}"
+              class="object-fit-cover w-100 h-100"
+              alt=""
+            />
+          </div>
+        </div>
+      </div>
+      <div class="col-md-7">
+        <p class="text-cream fw-semibold mb-1">{{ product.name }}</p>
+        <p class="price-tag mb-0">{{ "%.2f"|format(product.price_cents / 100) }} PLN</p>
+        <p class="small text-muted-custom mt-2 mb-0">{{ product.short_description }}</p>
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('checkout', product_id=product.id) }}" class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+      <fieldset class="mb-4">
+        <legend class="h6 text-cream mb-3">Metoda płatności (symulacja)</legend>
+        <div class="d-grid gap-2">
+          {% for key, label in payment_methods.items() %}
+          <div class="form-check checkout-option p-3 rounded-3 border border-secondary border-opacity-25">
+            <input class="form-check-input" type="radio" name="payment_method" id="pay-{{ key }}" value="{{ key }}" required />
+            <label class="form-check-label text-muted-custom" for="pay-{{ key }}">{{ label }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="mb-4">
+        <legend class="h6 text-cream mb-3">Dostawa (symulacja)</legend>
+        <div class="d-grid gap-2">
+          {% for key, label in delivery_methods.items() %}
+          <div class="form-check checkout-option p-3 rounded-3 border border-secondary border-opacity-25">
+            <input class="form-check-input" type="radio" name="delivery_method" id="del-{{ key }}" value="{{ key }}" required />
+            <label class="form-check-label text-muted-custom" for="del-{{ key }}">{{ label }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <p class="small text-muted-custom mb-3">
+        Po potwierdzeniu zapiszemy zamówienie w bazie. Nie ma realnego obciążenia karty ani nadania przesyłki.
+      </p>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-accent btn-lg px-4">Potwierdź zamówienie</button>
+        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-light btn-lg">Anuluj</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

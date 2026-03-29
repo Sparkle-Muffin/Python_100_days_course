@@ -34,10 +34,25 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-2">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-2 align-items-lg-center">
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('index') }}">Katalog</a>
             </li>
+            {% if current_user %}
+            <li class="nav-item">
+              <span class="nav-link disabled text-muted-custom small py-lg-2">{{ current_user.email }}</span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('logout') }}">Wyloguj</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('login') }}">Logowanie</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('register') }}">Rejestracja</a>
+            </li>
+            {% endif %}
           </ul>
         </div>
       </div>
@@ -58,7 +73,7 @@
 
     <footer class="border-top border-secondary border-opacity-25 mt-auto py-4 text-center small text-muted">
       <div class="container">
-        Sklep testowy — płatności Stripe (tryb testowy). Treści i zdjęcia pochodzą z katalogu
+        Sklep demonstracyjny — symulowana płatność i dostawa, konta w SQLite. Treści i zdjęcia z katalogu
         <code>input/</code>.
       </div>
     </footer>

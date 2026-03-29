@@ -113,9 +113,26 @@ html {
   font-size: 0.98rem;
 }
 
-.success-panel,
-.cancel-panel {
+.success-panel {
   background: rgba(18, 28, 24, 0.95);
+}
+
+.auth-card,
+.checkout-thumb-wrap {
+  background: rgba(18, 28, 24, 0.92);
+}
+
+.checkout-option .form-check-input {
+  margin-top: 0.35rem;
+}
+
+.checkout-option:has(.form-check-input:checked) {
+  border-color: var(--accent-dim) !important;
+  background: rgba(196, 245, 110, 0.06);
+}
+
+.list-group-item {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .breadcrumb {

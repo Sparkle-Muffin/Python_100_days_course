@@ -1,32 +1,24 @@
 """
-Serpentarium — demo e‑commerce with Flask + Stripe Checkout (day 97).
+Serpentarium — demo sklep z mockiem płatności i kontami klientów (dzień 97).
 
-Catalogue is read from ./input/<slug> (description.txt + one .jpg per species).
+Katalog: ./input/<slug> (description.txt + jeden plik .jpg).
 
-Environment:
-  STRIPE_SECRET_KEY   — Stripe secret key (sk_test_… or sk_live_…)
-  PUBLIC_BASE_URL     — Optional. Public URL of this app, e.g. https://abc.ngrok.io
-                        Used for Stripe success/cancel redirects. Defaults to request.url_root.
-  FLASK_SECRET_KEY    — Optional. For flash messages; defaults to an insecure dev value.
+Baza: SQLite w ./instance/serpentarium.db (SQLAlchemy).
 
-Do not commit real API keys.
+Zainstaluj: flask sqlalchemy flask-sqlalchemy
+  (hasła: werkzeug jest w zestawie z Flask).
 
-Run (after installing deps): flask --app main run --debug
+Uruchom: flask --app main run --debug
 """
 
 from __future__ import annotations
 
+import functools
 import os
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
-import stripe
-
-try:
-    StripeError = stripe.StripeError
-except AttributeError:  # older stripe-python
-    StripeError = stripe.error.StripeError  # type: ignore[attr-defined]
 
 from flask import (
     Flask,
@@ -36,14 +28,63 @@ from flask import (
     render_template,
     request,
     send_from_directory,
+    session,
     url_for,
 )
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 INPUT_DIR = BASE_DIR / "input"
+INSTANCE_DIR = BASE_DIR / "instance"
+INSTANCE_DIR.mkdir(exist_ok=True)
 
-app = Flask(__name__)
+app = Flask(__name__, instance_path=str(INSTANCE_DIR))
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-insecure-change-for-production")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL",
+    f"sqlite:///{INSTANCE_DIR / 'serpentarium.db'}",
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(256), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    orders = db.relationship("Order", backref="user", lazy="dynamic")
+
+
+class Order(db.Model):
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    product_id = db.Column(db.String(128), nullable=False)
+    product_name = db.Column(db.String(256), nullable=False)
+    price_cents = db.Column(db.Integer, nullable=False)
+    payment_method = db.Column(db.String(32), nullable=False)
+    delivery_method = db.Column(db.String(32), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+
+PAYMENT_METHODS: dict[str, str] = {
+    "card": "Karta płatnicza (symulacja)",
+    "blik": "BLIK (symulacja)",
+    "transfer": "Przelew bankowy (symulacja)",
+}
+
+DELIVERY_METHODS: dict[str, str] = {
+    "courier": "Kurier (1–2 dni robocze)",
+    "pickup": "Odbiór osobisty — punkt Serpentarium",
+    "parcel_locker": "Paczkomat (symulacja)",
+}
 
 
 def _slug_to_label(slug: str) -> str:
@@ -51,13 +92,11 @@ def _slug_to_label(slug: str) -> str:
 
 
 def _assign_price_cents(slugs: list[str]) -> dict[str, int]:
-    """Test-only prices in PLN grosze (smallest currency unit)."""
     ordered = sorted(slugs)
     return {s: 12_900 + i * 4_500 for i, s in enumerate(ordered)}
 
 
 def load_catalog() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
-    """Build product list and id → product map from input/."""
     if not INPUT_DIR.is_dir():
         return [], {}
 
@@ -103,27 +142,31 @@ def load_catalog() -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
 CATALOG, PRODUCTS_BY_ID = load_catalog()
 
 
-def _public_base_url() -> str:
-    base = os.environ.get("PUBLIC_BASE_URL", "").strip().rstrip("/")
-    if base:
-        return base
-    return request.url_root.rstrip("/")
-
-
-def _configure_stripe() -> bool:
-    key = os.environ.get("STRIPE_SECRET_KEY", "").strip()
-    if not key:
-        return False
-    stripe.api_key = key
-    return True
-
-
-def _checkout_email(customer_details: Any) -> str | None:
-    if not customer_details:
+def get_current_user() -> User | None:
+    uid = session.get("user_id")
+    if not uid:
         return None
-    if isinstance(customer_details, dict):
-        return customer_details.get("email")
-    return getattr(customer_details, "email", None)
+    return db.session.get(User, uid)
+
+
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped(*args, **kwargs):
+        if get_current_user() is None:
+            flash("Zaloguj się, aby kontynuować.", "warning")
+            return redirect(url_for("login", next=request.url))
+        return view(*args, **kwargs)
+
+    return wrapped
+
+
+@app.context_processor
+def inject_shop():
+    return {
+        "current_user": get_current_user(),
+        "payment_methods": PAYMENT_METHODS,
+        "delivery_methods": DELIVERY_METHODS,
+    }
 
 
 @app.route("/")
@@ -149,72 +192,115 @@ def catalog_asset(slug: str, filename: str):
     return send_from_directory(folder, filename)
 
 
-@app.post("/create-checkout-session")
-def create_checkout_session():
-    if not _configure_stripe():
-        flash("Stripe nie jest skonfigurowany: ustaw zmienną STRIPE_SECRET_KEY.", "danger")
-        pid = request.form.get("product_id", "")
-        if pid in PRODUCTS_BY_ID:
-            return redirect(url_for("product_detail", product_id=pid))
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _normalize_email(value: str) -> str:
+    return value.strip().lower()
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if get_current_user() is not None:
         return redirect(url_for("index"))
 
-    product_id = request.form.get("product_id", "")
+    if request.method == "POST":
+        email = _normalize_email(request.form.get("email", ""))
+        password = request.form.get("password", "")
+        password2 = request.form.get("password_confirm", "")
+
+        if not email or not _EMAIL_RE.match(email):
+            flash("Podaj poprawny adres e-mail.", "danger")
+        elif len(password) < 6:
+            flash("Hasło musi mieć co najmniej 6 znaków.", "danger")
+        elif password != password2:
+            flash("Hasła nie są takie same.", "danger")
+        elif User.query.filter_by(email=email).first():
+            flash("Konto z tym adresem już istnieje.", "warning")
+        else:
+            user = User(email=email, password_hash=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
+            session["user_id"] = user.id
+            flash("Konto utworzone. Witamy w Serpentarium.", "success")
+            return redirect(url_for("index"))
+
+    return render_template("register.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if get_current_user() is not None:
+        return redirect(url_for("index"))
+
+    next_url = request.args.get("next", "")
+
+    if request.method == "POST":
+        next_url = request.form.get("next", "") or next_url
+        email = _normalize_email(request.form.get("email", ""))
+        password = request.form.get("password", "")
+        user = User.query.filter_by(email=email).first() if email else None
+
+        if user is None or not check_password_hash(user.password_hash, password):
+            flash("Nieprawidłowy e-mail lub hasło.", "danger")
+        else:
+            session["user_id"] = user.id
+            flash("Zalogowano.", "success")
+            if next_url and next_url.startswith("/") and not next_url.startswith("//"):
+                return redirect(next_url)
+            return redirect(url_for("index"))
+
+    return render_template("login.html", next_url=next_url)
+
+
+@app.get("/logout")
+def logout():
+    session.pop("user_id", None)
+    flash("Wylogowano.", "info")
+    return redirect(url_for("index"))
+
+
+@app.route("/checkout/<product_id>", methods=["GET", "POST"])
+@login_required
+def checkout(product_id: str):
     prod = PRODUCTS_BY_ID.get(product_id)
     if prod is None:
-        flash("Nieznany produkt.", "warning")
-        return redirect(url_for("index"))
+        abort(404)
 
-    base = _public_base_url()
-    try:
-        checkout_session = stripe.checkout.Session.create(
-            mode="payment",
-            line_items=[
-                {
-                    "quantity": 1,
-                    "price_data": {
-                        "currency": "pln",
-                        "unit_amount": prod["price_cents"],
-                        "product_data": {
-                            "name": prod["name"],
-                            "description": prod["short_description"][:500],
-                            "images": [
-                                f"{base}{url_for('catalog_asset', slug=prod['id'], filename=prod['image_file'])}"
-                            ],
-                        },
-                    },
-                }
-            ],
-            success_url=base + url_for("checkout_success") + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=base + url_for("checkout_cancel"),
-            metadata={"product_id": prod["id"]},
+    if request.method == "POST":
+        payment = request.form.get("payment_method", "")
+        delivery = request.form.get("delivery_method", "")
+        if payment not in PAYMENT_METHODS or delivery not in DELIVERY_METHODS:
+            flash("Wybierz metodę płatności i dostawy.", "warning")
+            return redirect(url_for("checkout", product_id=product_id))
+
+        user = get_current_user()
+        assert user is not None
+        order = Order(
+            user_id=user.id,
+            product_id=prod["id"],
+            product_name=prod["name"],
+            price_cents=prod["price_cents"],
+            payment_method=payment,
+            delivery_method=delivery,
         )
-    except StripeError as e:
-        flash(f"Błąd Stripe: {getattr(e, 'user_message', None) or str(e)}", "danger")
-        return redirect(url_for("product_detail", product_id=product_id))
+        db.session.add(order)
+        db.session.commit()
+        flash("Zamówienie zapisane. Płatność i logistyka są tylko symulowane.", "success")
+        return redirect(url_for("order_confirmation", order_id=order.id))
 
-    return redirect(checkout_session.url, code=303)
-
-
-@app.route("/success")
-def checkout_success():
-    session_id = request.args.get("session_id", "").strip()
-    session_data: dict[str, Any] | None = None
-    if session_id and _configure_stripe():
-        try:
-            sess = stripe.checkout.Session.retrieve(session_id)
-            details = sess.get("customer_details")
-            session_data = {
-                "payment_status": sess.get("payment_status"),
-                "customer_email": _checkout_email(details),
-                "amount_total": sess.get("amount_total"),
-                "currency": (sess.get("currency") or "").upper(),
-            }
-        except StripeError:
-            session_data = None
-    return render_template("success.html", session=session_data)
+    return render_template("checkout.html", product=prod)
 
 
-@app.route("/cancel")
-def checkout_cancel():
-    return render_template("cancel.html")
+@app.get("/order/<int:order_id>")
+@login_required
+def order_confirmation(order_id: int):
+    user = get_current_user()
+    order = db.session.get(Order, order_id)
+    if order is None or user is None or order.user_id != user.id:
+        abort(404)
+    return render_template("order_confirmation.html", order=order)
 
+
+with app.app_context():
+    db.create_all()
