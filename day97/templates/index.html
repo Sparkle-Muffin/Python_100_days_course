@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Katalog — Serpentarium{% endblock %}
+{% block content %}
+<header class="mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+  <p class="text-accent text-uppercase small letter-spacing mb-1">Edukacyjny sklep demo</p>
+  <h1 class="display-5 font-serif fw-bold text-cream mb-2">Węże z kolekcji Serpentarium</h1>
+  <p class="lead text-muted-custom mb-0">
+    Modele edukacyjne z opisem gatunku. Płatność testowa przez Stripe Checkout — żaden prawdziwy handel.
+  </p>
+</header>
+
+{% if not products %}
+<div class="alert alert-warning">Brak produktów w katalogu (<code>input/</code>).</div>
+{% else %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+  {% for p in products %}
+  <div class="col">
+    <article class="card h-100 product-card border-0 shadow-sm overflow-hidden">
+      <div class="ratio ratio-4x3 bg-dark">
+        <img
+          src="{{ url_for('catalog_asset', slug=p.id, filename=p.image_file) }}"
+          class="card-img-top object-fit-cover"
+          alt="{{ p.name }}"
+          loading="lazy"
+        />
+      </div>
+      <div class="card-body d-flex flex-column">
+        <h2 class="h5 card-title font-serif fw-bold text-cream mb-2">{{ p.name }}</h2>
+        <p class="card-text small text-muted-custom flex-grow-1">{{ p.short_description }}</p>
+        <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top border-secondary border-opacity-25">
+          <span class="price-tag">{{ "%.2f"|format(p.price_cents / 100) }} PLN</span>
+          <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn btn-accent btn-sm">
+            Szczegóły
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

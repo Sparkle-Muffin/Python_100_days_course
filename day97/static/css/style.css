@@ -1,0 +1,127 @@
+/* Serpentarium — dark reptile / jungle shop */
+
+:root {
+  --void: #0a0f0d;
+  --moss-dark: #121c18;
+  --moss: #1c2e26;
+  --leaf: #2d4f3e;
+  --accent: #c4f56e;
+  --accent-dim: #8fbc5a;
+  --cream: #e8ebe4;
+  --muted: #9aa89d;
+}
+
+html {
+  height: 100%;
+}
+
+.shop-body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: "DM Sans", system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(45, 79, 62, 0.45), transparent),
+ radial-gradient(900px 500px at 100% 20%, rgba(28, 46, 38, 0.6), transparent),
+    linear-gradient(180deg, var(--void) 0%, var(--moss-dark) 45%, var(--moss) 100%);
+  color: var(--cream);
+}
+
+.font-serif {
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.shop-nav {
+  background: rgba(10, 15, 13, 0.85) !important;
+  backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+  letter-spacing: 0.02em;
+}
+
+.text-cream {
+  color: var(--cream) !important;
+}
+
+.text-muted-custom {
+  color: var(--muted) !important;
+}
+
+.text-accent {
+  color: var(--accent-dim) !important;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+
+.letter-spacing {
+  letter-spacing: 0.14em;
+}
+
+.link-accent {
+  color: var(--accent);
+}
+
+.link-accent:hover {
+  color: var(--accent-dim);
+}
+
+.btn-accent {
+  --bs-btn-color: #0a0f0d;
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-bg: var(--accent-dim);
+  --bs-btn-hover-border-color: var(--accent-dim);
+  --bs-btn-hover-color: #0a0f0d;
+  --bs-btn-active-bg: var(--accent-dim);
+  --bs-btn-active-border-color: var(--accent-dim);
+  font-weight: 600;
+}
+
+.product-card {
+  background: rgba(18, 28, 24, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.35) !important;
+}
+
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.price-tag {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.price-tag-lg {
+  font-size: 1.5rem;
+}
+
+.product-hero-wrap {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #000;
+}
+
+.product-description {
+  line-height: 1.65;
+  font-size: 0.98rem;
+}
+
+.success-panel,
+.cancel-panel {
+  background: rgba(18, 28, 24, 0.95);
+}
+
+.breadcrumb {
+  --bs-breadcrumb-divider-color: var(--muted);
+}
+
+.breadcrumb a {
+  color: var(--accent-dim);
+}

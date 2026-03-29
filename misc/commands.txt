@@ -53,6 +53,7 @@ micromamba install textract
 micromamba install pyautogui
 micromamba install pillow
 micromamba install pygame
+micromamba install stripe
 
 day71:
 python -m venv myfirstproject
