@@ -25,7 +25,7 @@
     <div class="d-flex flex-wrap gap-2">
       {% if current_user %}
       <a href="{{ url_for('checkout', product_id=product.id) }}" class="btn btn-accent btn-lg px-4">
-        Zamów (dane dostawy i płatność)
+        Zamów
       </a>
       {% else %}
       <a href="{{ url_for('login', next=url_for('checkout', product_id=product.id)) }}" class="btn btn-accent btn-lg px-4">
