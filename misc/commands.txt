@@ -54,6 +54,7 @@ micromamba install pyautogui
 micromamba install pillow
 micromamba install pygame
 micromamba install stripe
+micromamba install iso3166
 
 day71:
 python -m venv myfirstproject
