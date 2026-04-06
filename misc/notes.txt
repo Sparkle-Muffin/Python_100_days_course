@@ -1,3 +1,6 @@
+repo with completed course:
+https://github.com/phillipai/100-days-of-code-python/tree/main
+
 Thonny - a Python IDE meant for learning programming:
 https://thonny.org/
 
