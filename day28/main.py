@@ -1,6 +1,8 @@
 from pathlib import Path
 from tkinter import *
 import math
+import csv
+from datetime import date
 
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
@@ -13,6 +15,7 @@ SHORT_BREAK_MIN = 5
 LONG_BREAK_MIN = 20
 BASE_DIR = Path(__file__).parent
 tomato_img_path = BASE_DIR / "tomato.png"
+work_time_csv_path = BASE_DIR / "work_time.csv"
 reps = 0
 timer = None
 current_count = 0
@@ -26,6 +29,43 @@ def format_total_time(seconds):
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
+def parse_time_to_seconds(time_str):
+    try:
+        hours_str, minutes_str, seconds_str = time_str.split(":")
+        return int(hours_str) * 3600 + int(minutes_str) * 60 + int(seconds_str)
+    except (ValueError, AttributeError):
+        return 0
+
+
+def save_work_time_to_csv():
+    today = date.today().isoformat()
+    work_by_date = {}
+
+    if work_time_csv_path.exists():
+        with work_time_csv_path.open("r", newline="", encoding="utf-8") as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                row_date = row.get("Date")
+                row_work_time = row.get("Work_Time", "00:00:00")
+                if row_date:
+                    work_by_date[row_date] = parse_time_to_seconds(row_work_time)
+
+    work_by_date[today] = work_by_date.get(today, 0) + total_work_seconds
+
+    with work_time_csv_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(["Date", "Work_Time"])
+        for row_date in sorted(work_by_date.keys()):
+            writer.writerow([row_date, format_total_time(work_by_date[row_date])])
+
+
+def on_window_close():
+    if timer is not None:
+        window.after_cancel(timer)
+    save_work_time_to_csv()
+    window.destroy()
 
 # ---------------------------- TIMER RESET ------------------------------- # 
 def reset_timer():
@@ -139,6 +179,7 @@ def count_down(count, work_second_elapsed=False):
 window = Tk()
 window.title("Pomodoro")
 window.config(padx=100, pady=50, bg=YELLOW)
+window.protocol("WM_DELETE_WINDOW", on_window_close)
 
 label_title = Label(text="Timer", font=(FONT_NAME, 40, "normal"), bg=YELLOW, fg=GREEN)
 label_title.grid(column=1, row=0)
