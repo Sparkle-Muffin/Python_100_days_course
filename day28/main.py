@@ -39,8 +39,7 @@ def parse_time_to_seconds(time_str):
         return 0
 
 
-def save_work_time_to_csv():
-    today = date.today().isoformat()
+def read_work_time_data():
     work_by_date = {}
 
     if work_time_csv_path.exists():
@@ -52,7 +51,21 @@ def save_work_time_to_csv():
                 if row_date:
                     work_by_date[row_date] = parse_time_to_seconds(row_work_time)
 
-    work_by_date[today] = work_by_date.get(today, 0) + total_work_seconds
+    return work_by_date
+
+
+def get_today_work_time_seconds():
+    today = date.today().isoformat()
+    work_by_date = read_work_time_data()
+    return work_by_date.get(today, 0)
+
+
+def save_work_time_to_csv():
+    today = date.today().isoformat()
+    work_by_date = read_work_time_data()
+
+    # Save the currently displayed total value for today.
+    work_by_date[today] = total_work_seconds
 
     with work_time_csv_path.open("w", newline="", encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file)
@@ -202,6 +215,8 @@ def count_down(count, work_second_elapsed=False):
         window.after(500, lambda: window.attributes('-topmost', False))
 
 # ---------------------------- UI SETUP ------------------------------- #
+total_work_seconds = get_today_work_time_seconds()
+
 window = Tk()
 window.title("Pomodoro")
 window.config(padx=100, pady=50, bg=YELLOW)
@@ -217,7 +232,7 @@ timer_text = canvas.create_text(100, 130, text="00:00", fill="white", font=(FONT
 canvas.grid(column=1, row=1)
 
 label_total_work_time = Label(
-    text="Total Work Time: 00:00:00",
+    text=f"Total Work Time: {format_total_time(total_work_seconds)}",
     font=(FONT_NAME, 14, "normal"),
     bg=YELLOW,
     fg=GREEN,
