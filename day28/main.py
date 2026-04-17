@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import *
+from tkinter import messagebox
 import math
 import csv
 from datetime import date
@@ -104,7 +105,12 @@ def skip_break():
     is_running = True
     start_timer()
 
-# ---------------------------- TIMER RESET ------------------------------- # 
+# ---------------------------- TIMER RESET ------------------------------- #
+def confirm_reset():
+    if messagebox.askyesno("Pomodoro", "Are you sure?", parent=window):
+        reset_timer()
+
+
 def reset_timer():
     global reps
     global timer
@@ -242,7 +248,7 @@ label_total_work_time.grid(column=1, row=2)
 start_pause_button = Button(text="Start", font=(FONT_NAME, 20, "normal"), command=toggle_timer)
 start_pause_button.grid(column=0, row=3)
 
-reset_button = Button(text="Reset", font=(FONT_NAME, 20, "normal"), command=reset_timer)
+reset_button = Button(text="Reset", font=(FONT_NAME, 20, "normal"), command=confirm_reset)
 reset_button.grid(column=2, row=3)
 
 skip_break_button = Button(text="Skip Break", font=(FONT_NAME, 14, "normal"), command=skip_break)
