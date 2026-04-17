@@ -82,6 +82,10 @@ def on_window_close():
     window.destroy()
 
 
+def end_session():
+    on_window_close()
+
+
 def update_skip_break_button_visibility():
     if current_phase == "break":
         skip_break_button.grid(column=2, row=4)
@@ -257,5 +261,12 @@ skip_break_button.grid_remove()
 
 label_ticks = Label(font=(FONT_NAME, 20, "normal"), bg=YELLOW, fg=GREEN)
 label_ticks.grid(column=1, row=3)
+
+end_session_button = Button(
+    text="End Session",
+    font=(FONT_NAME, 16, "normal"),
+    command=end_session,
+)
+end_session_button.grid(column=0, row=5, columnspan=3, pady=(28, 0), sticky="ew")
 
 mainloop()
