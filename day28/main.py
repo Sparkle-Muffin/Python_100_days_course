@@ -67,6 +67,30 @@ def on_window_close():
     save_work_time_to_csv()
     window.destroy()
 
+
+def update_skip_break_button_visibility():
+    if current_phase == "break":
+        skip_break_button.grid(column=2, row=4)
+    else:
+        skip_break_button.grid_remove()
+
+
+def skip_break():
+    global timer
+    global current_count
+    global is_running
+
+    if current_phase != "break":
+        return
+
+    if timer is not None:
+        window.after_cancel(timer)
+        timer = None
+
+    current_count = 0
+    is_running = True
+    start_timer()
+
 # ---------------------------- TIMER RESET ------------------------------- # 
 def reset_timer():
     global reps
@@ -90,6 +114,7 @@ def reset_timer():
     label_total_work_time.config(text="Total Work Time: 00:00:00")
     label_ticks.config(text="")
     reps = 0
+    update_skip_break_button_visibility()
 
 # ---------------------------- TIMER TOGGLE ------------------------------- # 
 def toggle_timer():
@@ -138,6 +163,7 @@ def start_timer():
         label_title.config(text="Work", fg=GREEN)
     is_running = True
     start_pause_button.config(text="Pause")
+    update_skip_break_button_visibility()
     count_down(current_count)
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
@@ -203,6 +229,10 @@ start_pause_button.grid(column=0, row=3)
 
 reset_button = Button(text="Reset", font=(FONT_NAME, 20, "normal"), command=reset_timer)
 reset_button.grid(column=2, row=3)
+
+skip_break_button = Button(text="Skip Break", font=(FONT_NAME, 14, "normal"), command=skip_break)
+skip_break_button.grid(column=2, row=4)
+skip_break_button.grid_remove()
 
 label_ticks = Label(font=(FONT_NAME, 20, "normal"), bg=YELLOW, fg=GREEN)
 label_ticks.grid(column=1, row=3)
