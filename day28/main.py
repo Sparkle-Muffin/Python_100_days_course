@@ -116,28 +116,22 @@ def confirm_reset():
 
 
 def reset_timer():
-    global reps
     global timer
     global current_count
     global is_running
     global current_phase
-    global total_work_seconds
 
     if timer is not None:
         window.after_cancel(timer)
         timer = None
 
-    is_running = False
-    current_phase = ""
-    current_count = 0
-    total_work_seconds = 0
-    start_pause_button.config(text="Start")
-    canvas.itemconfig(timer_text, text="00:00")
-    label_title.config(text="Timer")
-    label_total_work_time.config(text="Total Work Time: 00:00:00")
-    label_ticks.config(text="")
-    reps = 0
+    current_phase = "work"
+    current_count = WORK_MIN * 60
+    is_running = True
+    start_pause_button.config(text="Pause")
+    label_title.config(text="Work", fg=GREEN)
     update_skip_break_button_visibility()
+    count_down(current_count)
 
 # ---------------------------- TIMER TOGGLE ------------------------------- # 
 def toggle_timer():
